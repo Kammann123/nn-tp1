@@ -31,7 +31,7 @@ class MultinomialNaiveBayes:
             x_data = x_data.reshape(1, -1)
             
         # Computing the log posteriori probabilities
-        log_posteriori = np.dot(self.x_log_cond_dist, x_data.transpose()) + (self.y_log_dist.reshape(-1, 1) * np.ones(x_data.shape[0]))
+        log_posteriori = self.x_log_cond_dist * x_data.transpose() + (self.y_log_dist.reshape(-1, 1) * np.ones(x_data.shape[0]))
     
         # Classifying according to the maximum log posteriori as criteria
         return np.array([log_posteriori[:,x_index].argmax() for x_index in range(x_data.shape[0])])
