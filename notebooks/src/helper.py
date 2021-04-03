@@ -9,7 +9,7 @@ def analyze_variable(data, var):
     fig.suptitle(var, fontsize=20)    
     
     # Plot global histogram
-    axs[0].hist(data[var], bins=24)
+    axs[0].hist(data[var], bins=20)
     axs[0].set_title('Distribución', fontsize=15)
     axs[0].set_xlabel(var)
     axs[0].set_ylabel('Frecuencia')

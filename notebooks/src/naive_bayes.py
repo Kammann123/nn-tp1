@@ -7,32 +7,50 @@ from scipy import stats
 # Including libraries from numpy
 import numpy as np
 
-def gaussian_pdf(value, mean, std):
+def gaussian_pdf(value, parameters):
     """ Probability density function of a gaussian distributed continuous random variable.
         @param value Value where the pdf is evaluated
-        @param mean Mean of the distribution
-        @param std Standard deviation of the distribution
+        @param parameters Values used to parametrize the distribution, such as the mean and the std
     """
+    mean = parameters['mean']
+    std = parameters['std']
     return stats.norm.pdf((value - mean) / std) / std
 
-class BinaryGaussianNaiveBayes(BaseEstimator):
-    """ Naive Bayes classificator for binary classes (positive and negative) using continuous random variables """
+def exponential_pdf(value, parameters):
+    """ Probability density function of an exponential distributed continuous random variable.
+        @param value Value where the pdf is evaluated
+        @param parameters Values used to parametrize the distribution, such as the mean
+    """
+    _lambda = parameters['lambda']
+    return stats.expon.pdf(value * _lambda) * _lambda
+
+class BinaryNaiveBayes(BaseEstimator):
+    """ Implements the Naive Bayes classification criteria to problems with two classes, 
+        allowing parametric distributions based on famous density functions.
+    """
     
-    def __init__(self, std_smoothing=0, std_correction=False, filter_variables=None):
+    # Dictionary used to map the type of distribution set in the configuration of the model
+    # and the function that handles. Basically, a dispatcher of probability density functions
+    supported_distributions = {
+        'gaussian': gaussian_pdf,
+        'exponential': exponential_pdf
+    }
+    
+    def __init__(self, std_correction=False, filter_variables=None, variables_models=None):
         
         # Parameters of the model, contains the class distribution also known as priori probabilities,
         # and the variables parameters used to parametrize the distributions assigned to each variable
         # taken into account
         self.classes_distribution = None
         self.classes_log_distribution = None
-        self.variables_mean = None
-        self.variables_std = None
+        self.variables_distributions = None
         
         # Configuration of the model, also known as the hiper parameters, selection of the
         # model settings used to optimize according a specific performance metric
         self.std_smoothing = std_smoothing if std_smoothing is not None else 0
         self.std_correction = std_correction if std_correction is not None else False
         self.filter_variables = filter_variables
+        self.variables_models = variables_models
     
     def fit(self, x_data, y_data):
         """ Fit the model with the training dataset given.
@@ -49,9 +67,11 @@ class BinaryGaussianNaiveBayes(BaseEstimator):
         self.classes_distribution = self.classes_distribution / self.classes_distribution.sum()
         self.classes_log_distribution = np.log(self.classes_distribution)
         
-        # Initializing container of mean and std values for variable's distributions
-        self.variables_mean = np.zeros((2, x_data[1]))
-        self.variables_std = np.zeros((2, x_data[1]))
+        # Initializing parameter container
+        self.variables_parameters = []
+        
+        # Fetch the models filtered
+        models = np.array(self.variables_distributions)[np.array(self.filter_variables)]
         
         # Calculating mean and standard deviation of variables
         for variable_index in range(x_data.shape[1]):
