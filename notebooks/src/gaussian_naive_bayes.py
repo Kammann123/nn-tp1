@@ -1,4 +1,4 @@
-from sklearn.linear_model.base import BaseEstimator
+from sklearn.base import BaseEstimator
 import numpy as np
 
 def gaussian_pdf(value, mean, std):
