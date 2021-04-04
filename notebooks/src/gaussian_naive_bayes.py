@@ -13,7 +13,7 @@ def gaussian_pdf(value, mean, std):
         @param mean Mean of the distribution
         @param std Standard deviation of the distribution
     """
-    return stats.norm.pdf((value - mean) / std) / std
+    return stats.norm(mean, std).pdf(value)
 
 class BinaryGaussianNaiveBayes(BaseEstimator):
     """ Naive Bayes classificator for binary classes (positive and negative) using gaussian continuous random variables """
