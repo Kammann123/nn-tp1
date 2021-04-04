@@ -1,35 +1,35 @@
+# Importing matplotlib modules
 import matplotlib.pyplot as plt
+
+# Importing pandas modules
 import pandas as pd
+
+# Importing numpy modules
 import numpy as np
 
+# Importing seaborn modules
+import seaborn as sns
+
 def analyze_variable(data, var):
-    
     # Create grid for figures
-    fig, axs = plt.subplots(1, 4, figsize=(24, 8))
-    fig.suptitle(var, fontsize=20)    
+    fig, axs = plt.subplots(2, 2, figsize=(15, 13))
     
-    # Plot global histogram
-    axs[0].hist(data[var], bins=20)
-    axs[0].set_title('Distribución', fontsize=15)
-    axs[0].set_xlabel(var)
-    axs[0].set_ylabel('Frecuencia')
+    # Plot 
+    sns.histplot(data=data[var], kde=True, ax=axs[0][0], stat='density')
+    axs[0][0].set_title('Distribución')
     
-    # Plot diabetic histogram
-    axs[1].hist(data[var][data['Outcome'] == 1], bins=24)
-    axs[1].set_title('Distribución dado que son diabéticos', fontsize=15)
-    axs[1].set_xlabel(var)
-    axs[1].set_ylabel('Frecuencia')
+    sns.boxplot(data=data[var], ax=axs[0][1])
+    axs[0][1].set_title('Boxplot')
     
-    # Plot non diabetic histogram
-    axs[2].hist(data[var][data['Outcome'] == 0], bins=24)
-    axs[2].set_title('Distribución dado que no son diabéticos', fontsize=15)
-    axs[2].set_xlabel(var)
-    axs[2].set_ylabel('Frecuencia')
+    sns.histplot(data=data[var][data['Outcome'] == 0], kde=True, ax=axs[1][0], stat='density')
+    axs[1][0].set_title('Distribución si no posee diabetes')
     
-    # Boxplot
-    data.boxplot(column=[var], ax=axs[3])
-    axs[3].set_title('Boxplot', fontsize=15)
-    #axs[3].set_ylabel(var)
+    sns.histplot(data=data[var][data['Outcome'] == 1], kde=True, ax=axs[1][1], stat='density')
+    axs[1][1].set_title('Distribución si posee diabetes')
+    
+    axs[1][1].set_ylim(axs[1][0].get_ylim())
+    
+    # Show
     plt.show()
     
 def get_outliers(data, var):
